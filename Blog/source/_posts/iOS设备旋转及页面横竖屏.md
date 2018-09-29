@@ -67,7 +67,7 @@ if([[UIDevice currentDevice] responseToSelector:@selector(setOrientation:)]){
         [[UIDevice currentDevice] setValue:value forKey:@"orientation"];
     }
 ```
-> 注：对页面强制旋转时候，需要设置shouldAutorotate方法YES，否则设备无法正常旋转，导致没有效果！
+> 注：对页面强制旋转时候，需要设置shouldAutorotate方法YES，否则设备无法正常旋转，导致没有效果！一般再页面push 的时候进行设置，保证进入页面显示即为竖屏。
 
 页面旋转方向参考
 
@@ -81,7 +81,25 @@ typedef NS_ENUM(NSInteger, UIDeviceOrientation) {
     UIDeviceOrientationFaceUp,              // Device oriented flat, face up    UIDeviceOrientationFaceDown             // Device oriented flat, face down
 };
 ```
+## 3、view transform
+ 在设置页面横竖屏的时候，也可以直接将view进行旋转动画的操作。（贴代码）
+```
+/设置statusBar
+[[UIApplication sharedApplication] setStatusBarOrientation:orientation];
+
+UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
+if(UIDeviceOrientationIsLandscape(orientation)){
+    [UIView animateWithDuration:0.35 delay:0.0 options:UIViewAnimationOptionBeginFormCurrentStat animations:^{
+    //对navigationController.view 进行强制旋转
+    self.navigationController.view.transform = (orientation == UIInterfaceOrientationLandscapeLeft)? CGAffineTransformMakeRotation(-M_PI/2) : CGAffineTransformMakeRotation(M_PI/2);
+    self.navigationController.view.bounds = CGRectMake(0, 0, SCREEN_HEIGHT, SCREEN_WIDTH);
+    } completion:nil];
+}
+```
+> 对于隐藏导航栏的情况只需要对self.view进行强制旋转，以上旋转可能会导致iOS9 之后出现 状态栏不显示的情况，需要确保Info.plist中的【View controller-based status bar appearance】为YES，然后重写viewController的- (BOOL)prefersStatusBarHidden，返回值是NO即可。同时，View的强制旋转需要设置)shouldAutorotate方法返回NO
 
 ---
+
 好了，记录调整一次设备横竖屏及设备旋转的问题....
+
 
